@@ -68,4 +68,15 @@
         android:layout_marginTop="16dp"
         android:text="Ask me later" />
 
+    <Button
+        android:id="@+id/close_btn"
+        style="@style/Widget.AppCompat.Button.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/no"
+        android:layout_alignBottom="@+id/no"
+        android:layout_alignParentEnd="true"
+        android:text="Close Me!"
+        android:visibility="invisible" />
+
 </RelativeLayout>

@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -121,7 +122,7 @@ public class FloatingClippyService extends Service {
         //    }
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
-
+        
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -147,6 +148,13 @@ public class FloatingClippyService extends Service {
             }
         });
 
+        mClippyView.findViewById(R.id.close_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopSelf();
+                startService(new Intent(FloatingClippyService.this, FloatingClippyService.class));
+            }
+        });
         mHandler.post(mIncreaseEngagementRunnable);
 
         /*
@@ -206,9 +214,11 @@ public class FloatingClippyService extends Service {
 
     private void startAction(String question) {
         final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
+        final Button closeButton = mClippyView.findViewById(R.id.close_btn);
         float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
         clippy.setX(screenWidth - clippy.getWidth());
+        closeButton.setVisibility(View.VISIBLE);
 
         final TextView message = mClippyView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
@@ -230,6 +240,7 @@ public class FloatingClippyService extends Service {
         mClippyView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.close_btn).setVisibility(View.INVISIBLE);
     }
 
     @Override
