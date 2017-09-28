@@ -6,6 +6,7 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.UiThread;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -23,8 +24,14 @@ public class FloatingClippyService extends Service {
 
     private static final int MIN_ENGAGEMENT_DELAY_MS = 5 * 1000;
     private static final int ENAGEMENT_VARAINCE_MS = 5 * 1000;
+
+    private static final String IS_CLOSE_INTENT = "CloseIntent";
+    private static final String START_FROM_LEFT = "StartFromLeft";
+
     private WindowManager mWindowManager;
     private View mClippyView;
+    private boolean mIsStartedFromLeft;
+    private boolean mIsPreviouslyClosed;
 
     private Handler mHandler = new Handler();
 
@@ -56,22 +63,26 @@ public class FloatingClippyService extends Service {
         public void run() {
             Random r = new Random();
 
-            final TextView yes = mClippyView.findViewById(R.id.yes);
-            if (yes.getVisibility() != View.VISIBLE) {
-                // Only show this if we're not already showing something
-                startAction(new ActionParams(ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]).setYesText("OK").setYesHandler(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Do nothing for demo.
-                    }
-                }));
-            }
+            // Only show this if we're not already showing something
+            startAction(new ActionParams(ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]).setYesText("OK").setYesHandler(new Runnable() {
+                @Override
+                public void run() {
+                    // Do nothing for demo.
+                }
+            }));
 
             mHandler.postDelayed(this, MIN_ENGAGEMENT_DELAY_MS + r.nextInt(ENAGEMENT_VARAINCE_MS));
         }
     };
 
     public FloatingClippyService() {
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mIsPreviouslyClosed = intent.getBooleanExtra(IS_CLOSE_INTENT, false);
+        mIsStartedFromLeft = intent.getBooleanExtra(START_FROM_LEFT, false);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -121,7 +132,7 @@ public class FloatingClippyService extends Service {
             }
         });
 
-        mClippyView.findViewById(R.id.no).setOnClickListener(new View.OnClickListener() {
+        mClippyView.findViewById(R.id.no).setOnClickListener(new View.OnClickListener()  {
             @Override
             public void onClick(View view) {
                 hideViews();
@@ -140,7 +151,7 @@ public class FloatingClippyService extends Service {
         //    }
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
-        
+
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -170,7 +181,10 @@ public class FloatingClippyService extends Service {
             @Override
             public void onClick(View view) {
                 stopSelf();
-                startService(new Intent(FloatingClippyService.this, FloatingClippyService.class));
+                Intent restartIntent = new Intent(FloatingClippyService.this, FloatingClippyService.class);
+                restartIntent.putExtra(IS_CLOSE_INTENT, true);
+                restartIntent.putExtra(START_FROM_LEFT, !mIsStartedFromLeft);
+                startService(restartIntent);
             }
         });
         mHandler.postDelayed(mIncreaseEngagementRunnable, MIN_ENGAGEMENT_DELAY_MS);
@@ -228,6 +242,25 @@ public class FloatingClippyService extends Service {
             }
         });
         */
+
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(200);
+                } catch (Exception ignored) {}
+
+                if (mIsPreviouslyClosed) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            startAction(new ActionParams("Your Clippy instance has been closed! How may I help you?"));
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     private final class ActionParams {
@@ -257,24 +290,40 @@ public class FloatingClippyService extends Service {
     }
 
     private void startAction(ActionParams params) {
+        final TextView yes = mClippyView.findViewById(R.id.yes);
+        if (yes.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
         mActiveClippyHandler = params.mYesHandler;
 
         final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
         final Button closeButton = mClippyView.findViewById(R.id.close_btn);
         float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
-        clippy.setX(screenWidth);
-        ViewPropertyAnimator animator = clippy.animate();
-        animator.setDuration(1000);
-        animator.translationXBy(-clippy.getWidth());
-        animator.start();
+
+        if (mIsStartedFromLeft) {
+            clippy.setX(-clippy.getWidth());
+            clippy.setScaleX(-1);
+            ViewPropertyAnimator animator = clippy.animate();
+            animator.setDuration(1000);
+            animator.translationXBy(clippy.getWidth());
+            animator.start();
+        }
+        else {
+            clippy.setX(screenWidth);
+            clippy.setScaleX(1);
+            ViewPropertyAnimator animator = clippy.animate();
+            animator.setDuration(1000);
+            animator.translationXBy(-clippy.getWidth());
+            animator.start();
+        }
 
         closeButton.setVisibility(View.VISIBLE);
 
         final TextView message = mClippyView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
         message.setText(params.mQuestion);
-        final TextView yes = mClippyView.findViewById(R.id.yes);
         yes.setText(params.mYesText);
         yes.setVisibility(View.VISIBLE);
         final TextView no = mClippyView.findViewById(R.id.no);
