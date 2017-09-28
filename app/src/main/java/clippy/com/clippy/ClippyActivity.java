@@ -36,13 +36,14 @@ public class ClippyActivity extends AppCompatActivity {
      * Set and initialize the view elements.
      */
     private void initializeView() {
-        findViewById(R.id.notify_me).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        // Just open automatically, don't wait for button press
+//        findViewById(R.id.notify_me).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
                 startService(new Intent(ClippyActivity.this, FloatingClippyService.class));
                 finish();
-            }
-        });
+//            }
+//        });
     }
 
     @Override
