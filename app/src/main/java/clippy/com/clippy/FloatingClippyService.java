@@ -3,6 +3,7 @@ package clippy.com.clippy;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.IBinder;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -12,12 +13,12 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ChatHeadService extends Service {
+public class FloatingClippyService extends Service {
 
     private WindowManager mWindowManager;
-    private View mChatHeadView;
+    private View mClippyView;
 
-    public ChatHeadService() {
+    public FloatingClippyService() {
     }
 
     @Override
@@ -28,30 +29,39 @@ public class ChatHeadService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        //Inflate the chat head layout we created
-        mChatHeadView = LayoutInflater.from(this).inflate(R.layout.layout_chat_head, null);
 
-        //Add the view to the window.
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT);
+        mClippyView = LayoutInflater.from(this).inflate(R.layout.layout_clippy, null);
 
-        //Specify the chat head position
-        params.gravity = Gravity.TOP | Gravity.LEFT;        //Initially view will be added to top-left corner
+        final WindowManager.LayoutParams params;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT);
+        }
+        else {
+            params = new WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.TYPE_PHONE,
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                    PixelFormat.TRANSLUCENT);
+        }
+
+        params.gravity = Gravity.TOP | Gravity.START;        //Initially view will be added to top-left corner
         params.x = 0;
         params.y = 0;
 
         //Add the view to the window
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        mWindowManager.addView(mChatHeadView, params);
+        mWindowManager.addView(mClippyView, params);
 
         hideViews();
 
         ////Set the close button.
-        //ImageView closeButton = (ImageView) mChatHeadView.findViewById(R.id.close_btn);
+        //ImageView closeButton = (ImageView) mClippyView.findViewById(R.id.close_btn);
         //closeButton.setOnClickListener(new View.OnClickListener() {
         //    @Override
         //    public void onClick(View v) {
@@ -59,7 +69,8 @@ public class ChatHeadService extends Service {
         //        stopSelf();
         //    }
         //});
-        final ImageView clippyBackground = (ImageView) mChatHeadView.findViewById(R.id.clippy_background);
+        final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
+        //final ImageView clippyIcon = mClippyView.findViewById(R.id.clippy_icon);
 
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -115,7 +126,7 @@ public class ChatHeadService extends Service {
                         //to identify if the user clicked the view or not.
                         if (lastAction == MotionEvent.ACTION_DOWN) {
                             //Open the chat conversation click.
-                            Intent intent = new Intent(ChatHeadService.this, ChatActivity.class);
+                            Intent intent = new Intent(FloatingClippyService.this, ClippyActionsActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent);
 
@@ -130,7 +141,7 @@ public class ChatHeadService extends Service {
                         params.y = initialY + (int) (event.getRawY() - initialTouchY);
 
                         //Update the layout with new X & Y coordinate
-                        mWindowManager.updateViewLayout(mChatHeadView, params);
+                        mWindowManager.updateViewLayout(mClippyView, params);
                         lastAction = event.getAction();
                         return true;
                 }
@@ -141,36 +152,36 @@ public class ChatHeadService extends Service {
     }
 
     private void startAction(String question) {
-        final ImageView clippy = mChatHeadView.findViewById(R.id.clippy);
-        float screenWidth = mChatHeadView.getWidth();
+        final ImageView clippy = mClippyView.findViewById(R.id.clippy);
+        float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
         clippy.setX(screenWidth - clippy.getWidth());
 
-        final TextView message = mChatHeadView.findViewById(R.id.message);
+        final TextView message = mClippyView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
         message.setText(question);
-        final TextView yes = mChatHeadView.findViewById(R.id.yes);
+        final TextView yes = mClippyView.findViewById(R.id.yes);
         yes.setVisibility(View.VISIBLE);
-        final TextView no = mChatHeadView.findViewById(R.id.no);
+        final TextView no = mClippyView.findViewById(R.id.no);
         no.setVisibility(View.VISIBLE);
 //        for (int i = 0; i < clippy.getWidth(); i++) {
 //            clippy.setX(screenWidth - i);
 //
 //        }
 
-        //mWindowManager.updateViewLayout(mChatHeadView, params);
+        //mWindowManager.updateViewLayout(mClippyView, params);
 
     }
     private void hideViews() {
-        mChatHeadView.findViewById(R.id.clippy).setVisibility(View.INVISIBLE);
-        mChatHeadView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
-        mChatHeadView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
-        mChatHeadView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.clippy).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (mChatHeadView != null) mWindowManager.removeView(mChatHeadView);
+        if (mClippyView != null) mWindowManager.removeView(mClippyView);
     }
 }
