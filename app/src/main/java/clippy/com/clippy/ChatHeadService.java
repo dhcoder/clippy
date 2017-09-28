@@ -34,12 +34,12 @@ public class ChatHeadService extends Service {
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
         //Specify the chat head position
-        params.gravity = Gravity.TOP | Gravity.LEFT;        //Initially view will be added to top-left corner
+        params.gravity = Gravity.TOP | Gravity.START;        //Initially view will be added to top-left corner
         params.x = 0;
         params.y = 0;
 
