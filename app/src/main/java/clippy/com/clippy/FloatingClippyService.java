@@ -11,6 +11,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -217,7 +218,12 @@ public class FloatingClippyService extends Service {
         final Button closeButton = mClippyView.findViewById(R.id.close_btn);
         float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
-        clippy.setX(screenWidth - clippy.getWidth());
+        clippy.setX(screenWidth);
+        ViewPropertyAnimator animator = clippy.animate();
+        animator.setDuration(1000);
+        animator.translationXBy(-clippy.getWidth());
+        animator.start();
+
         closeButton.setVisibility(View.VISIBLE);
 
         final TextView message = mClippyView.findViewById(R.id.message);
