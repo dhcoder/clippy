@@ -6,6 +6,7 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.UiThread;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -25,8 +26,13 @@ public class FloatingClippyService extends Service {
     private static final int ENAGEMENT_VARAINCE_MS = 15 * 1000;
 //    private static final int MIN_ENGAGEMENT_DELAY_MS = 500;
 //    private static final int ENAGEMENT_VARAINCE_MS = 1000;
+    private static final String IS_CLOSE_INTENT = "CloseIntent";
+    private static final String START_FROM_LEFT = "StartFromLeft";
+
     private WindowManager mWindowManager;
     private View mClippyView;
+    private boolean mIsStartedFromLeft;
+    private boolean mIsPreviouslyClosed;
 
     private Handler mHandler = new Handler();
 
@@ -53,6 +59,13 @@ public class FloatingClippyService extends Service {
     };
 
     public FloatingClippyService() {
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mIsPreviouslyClosed = intent.getBooleanExtra(IS_CLOSE_INTENT, false);
+        mIsStartedFromLeft = intent.getBooleanExtra(START_FROM_LEFT, false);
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -104,7 +117,7 @@ public class FloatingClippyService extends Service {
             }
         });
 
-        mClippyView.findViewById(R.id.no).setOnClickListener(new View.OnClickListener() {
+        mClippyView.findViewById(R.id.no).setOnClickListener(new View.OnClickListener()  {
             @Override
             public void onClick(View view) {
                 hideViews();
@@ -123,7 +136,7 @@ public class FloatingClippyService extends Service {
         //    }
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
-        
+
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -153,7 +166,10 @@ public class FloatingClippyService extends Service {
             @Override
             public void onClick(View view) {
                 stopSelf();
-                startService(new Intent(FloatingClippyService.this, FloatingClippyService.class));
+                Intent restartIntent = new Intent(FloatingClippyService.this, FloatingClippyService.class);
+                restartIntent.putExtra(IS_CLOSE_INTENT, true);
+                restartIntent.putExtra(START_FROM_LEFT, !mIsStartedFromLeft);
+                startService(restartIntent);
             }
         });
         mHandler.post(mIncreaseEngagementRunnable);
@@ -211,6 +227,25 @@ public class FloatingClippyService extends Service {
             }
         });
         */
+
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(200);
+                } catch (Exception ignored) {}
+
+                if (mIsPreviouslyClosed) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            startAction("Your Clippy instance has been closed! How may I help you?");
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     private void startAction(String question) {
@@ -218,11 +253,23 @@ public class FloatingClippyService extends Service {
         final Button closeButton = mClippyView.findViewById(R.id.close_btn);
         float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
-        clippy.setX(screenWidth);
-        ViewPropertyAnimator animator = clippy.animate();
-        animator.setDuration(1000);
-        animator.translationXBy(-clippy.getWidth());
-        animator.start();
+
+        if (mIsStartedFromLeft) {
+            clippy.setX(-clippy.getWidth());
+            clippy.setScaleX(-1);
+            ViewPropertyAnimator animator = clippy.animate();
+            animator.setDuration(1000);
+            animator.translationXBy(clippy.getWidth());
+            animator.start();
+        }
+        else {
+            clippy.setX(screenWidth);
+            clippy.setScaleX(1);
+            ViewPropertyAnimator animator = clippy.animate();
+            animator.setDuration(1000);
+            animator.translationXBy(-clippy.getWidth());
+            animator.start();
+        }
 
         closeButton.setVisibility(View.VISIBLE);
 
