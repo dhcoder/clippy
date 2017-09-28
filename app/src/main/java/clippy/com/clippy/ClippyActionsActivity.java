@@ -45,6 +45,7 @@ public class ClippyActionsActivity extends AppCompatActivity {
         nameList.add("Calendar");
         nameList.add("Phone");
         nameList.add("Search");
+        nameList.add("Camera");
 
 
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, nameList);
@@ -57,7 +58,7 @@ public class ClippyActionsActivity extends AppCompatActivity {
                     case 1:startCalendar();break;
                     case 2:startPhone();break;
                     case 3:startGoogle();break;
-//                    case 4:startCamera();break;
+                    case 4:startCamera();break;
                 }
 
             }
@@ -67,7 +68,7 @@ public class ClippyActionsActivity extends AppCompatActivity {
     private void startGoogle() {
         Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
         intent.putExtra(SearchManager.QUERY, "hackathon"); // query contains search string
-        startActivity(intent);        startActivity(intent);
+        startActivity(intent);
     }
 
     private void startYoutube() {
@@ -91,10 +92,10 @@ public class ClippyActionsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-//    private void startCamera() {
-//        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-//        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-//            startActivityForResult(takePictureIntent, 1);
-//        }
-//    }
+    private void startCamera() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(takePictureIntent, 1);
+        }
+    }
 }
