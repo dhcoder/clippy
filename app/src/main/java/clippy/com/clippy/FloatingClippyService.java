@@ -55,16 +55,13 @@ public class FloatingClippyService extends Service {
         public void run() {
             Random r = new Random();
 
-            final TextView yes = mClippyView.findViewById(R.id.yes);
-            if (yes.getVisibility() != View.VISIBLE) {
-                // Only show this if we're not already showing something
-                startAction(new ActionParams(ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]).setYesText("OK").setYesHandler(new Runnable() {
-                    @Override
-                    public void run() {
-                        // Do nothing for demo.
-                    }
-                }));
-            }
+            // Only show this if we're not already showing something
+            startAction(new ActionParams(ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]).setYesText("OK").setYesHandler(new Runnable() {
+                @Override
+                public void run() {
+                    // Do nothing for demo.
+                }
+            }));
 
             mHandler.postDelayed(this, MIN_ENGAGEMENT_DELAY_MS + r.nextInt(ENAGEMENT_VARAINCE_MS));
         }
@@ -256,6 +253,11 @@ public class FloatingClippyService extends Service {
     }
 
     private void startAction(ActionParams params) {
+        final TextView yes = mClippyView.findViewById(R.id.yes);
+        if (yes.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
         mActiveClippyHandler = params.mYesHandler;
 
         final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
@@ -268,7 +270,6 @@ public class FloatingClippyService extends Service {
         final TextView message = mClippyView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
         message.setText(params.mQuestion);
-        final TextView yes = mClippyView.findViewById(R.id.yes);
         yes.setText(params.mYesText);
         yes.setVisibility(View.VISIBLE);
         final TextView no = mClippyView.findViewById(R.id.no);
