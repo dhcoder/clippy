@@ -26,6 +26,8 @@ public class FloatingClippyService extends Service {
     private static final int ENAGEMENT_VARAINCE_MS = 15 * 1000;
 //    private static final int MIN_ENGAGEMENT_DELAY_MS = 500;
 //    private static final int ENAGEMENT_VARAINCE_MS = 1000;
+    private static final int ENAGEMENT_VARAINCE_MS = 5 * 1000;
+
     private static final String IS_CLOSE_INTENT = "CloseIntent";
     private static final String START_FROM_LEFT = "StartFromLeft";
 
@@ -38,7 +40,7 @@ public class FloatingClippyService extends Service {
 
     private static String [] ENGAGEMENT_PHRASES = new String[] {
             "Would you like to try YouTube Red for free for 3 months?",
-            "Get started talking with someone on Allo now!",
+            "Try Allo! The messaging app with stickers AND the Google assistant. It's great! Really. Try it. Please...",
             "Would you like to try YouTube TV for free for one month?",
             "Try G+! Google's state of the art social network, featuring Circles",
             "Did you know? A background service is probably running",
@@ -48,11 +50,29 @@ public class FloatingClippyService extends Service {
             "Wifi assistant is running. We don't know what that does, either.",
     };
 
+    private final Runnable CLIPPY_ACTIONS_HANDLER = new Runnable() {
+        @Override
+        public void run() {
+            Intent intent = new Intent(FloatingClippyService.this, ClippyActionsActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    };
+
+    private Runnable mActiveClippyHandler = CLIPPY_ACTIONS_HANDLER;
+
     private Runnable mIncreaseEngagementRunnable = new Runnable() {
         @Override
         public void run() {
             Random r = new Random();
-            Log.i("Clippy", ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]);
+
+            // Only show this if we're not already showing something
+            startAction(new ActionParams(ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]).setYesText("OK").setYesHandler(new Runnable() {
+                @Override
+                public void run() {
+                    // Do nothing for demo.
+                }
+            }));
 
             mHandler.postDelayed(this, MIN_ENGAGEMENT_DELAY_MS + r.nextInt(ENAGEMENT_VARAINCE_MS));
         }
@@ -108,9 +128,7 @@ public class FloatingClippyService extends Service {
         mClippyView.findViewById(R.id.yes).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(FloatingClippyService.this, ClippyActionsActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+                mActiveClippyHandler.run();
 
                 //close the service and remove the chat heads
                 stopSelf();
@@ -146,7 +164,7 @@ public class FloatingClippyService extends Service {
                         //chatHead.setY(event.getRawY());
                         //clippy.setX(mChatHeadView.getWidth());
                         //clippy.setVisibility(View.VISIBLE);
-                        startAction("It looks like you want to open an app, would you like some help with that?");
+                        startAction(new ActionParams("It looks like you want to open an app, would you like some help with that?"));
                         //mWindowManager.updateViewLayout(mChatHeadView, params);
                         return true;
 //                    case MotionEvent.ACTION_UP:
@@ -172,7 +190,7 @@ public class FloatingClippyService extends Service {
                 startService(restartIntent);
             }
         });
-        mHandler.post(mIncreaseEngagementRunnable);
+        mHandler.postDelayed(mIncreaseEngagementRunnable, MIN_ENGAGEMENT_DELAY_MS);
 
         /*
         //Drag and move chat head using user's touch action.
@@ -248,7 +266,40 @@ public class FloatingClippyService extends Service {
         }).start();
     }
 
-    private void startAction(String question) {
+    private final class ActionParams {
+        String mQuestion;
+        Runnable mYesHandler = CLIPPY_ACTIONS_HANDLER;
+        String mYesText = "Yes";
+        String mNoText = "Ask Me Later";
+
+        ActionParams(String question) {
+            mQuestion = question;
+        }
+
+        public ActionParams setYesText(String yesText) {
+            mYesText = yesText;
+            return this;
+        }
+
+        public ActionParams setYesHandler(Runnable yesHandler) {
+            mYesHandler = yesHandler;
+            return this;
+        }
+
+        public ActionParams setNoText(String noText) {
+            mNoText = noText;
+            return this;
+        }
+    }
+
+    private void startAction(ActionParams params) {
+        final TextView yes = mClippyView.findViewById(R.id.yes);
+        if (yes.getVisibility() == View.VISIBLE) {
+            return;
+        }
+
+        mActiveClippyHandler = params.mYesHandler;
+
         final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
         final Button closeButton = mClippyView.findViewById(R.id.close_btn);
         float screenWidth = mClippyView.getWidth();
@@ -275,18 +326,14 @@ public class FloatingClippyService extends Service {
 
         final TextView message = mClippyView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
-        message.setText(question);
-        final TextView yes = mClippyView.findViewById(R.id.yes);
+        message.setText(params.mQuestion);
+        yes.setText(params.mYesText);
         yes.setVisibility(View.VISIBLE);
         final TextView no = mClippyView.findViewById(R.id.no);
+        no.setText(params.mNoText);
         no.setVisibility(View.VISIBLE);
-//        for (int i = 0; i < clippy.getWidth(); i++) {
-//            clippy.setX(screenWidth - i);
-//
-//        }
 
         //mWindowManager.updateViewLayout(mClippyView, params);
-
     }
     private void hideViews() {
         mClippyView.findViewById(R.id.clippy_icon).setVisibility(View.INVISIBLE);
