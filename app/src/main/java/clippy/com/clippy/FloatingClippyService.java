@@ -4,7 +4,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,10 +15,40 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Random;
+
 public class FloatingClippyService extends Service {
 
+    private static final int MIN_ENGAGEMENT_DELAY_MS = 5 * 1000;
+    private static final int ENAGEMENT_VARAINCE_MS = 15 * 1000;
+//    private static final int MIN_ENGAGEMENT_DELAY_MS = 500;
+//    private static final int ENAGEMENT_VARAINCE_MS = 1000;
     private WindowManager mWindowManager;
     private View mClippyView;
+
+    private Handler mHandler = new Handler();
+
+    private static String [] ENGAGEMENT_PHRASES = new String[] {
+            "Would you like to try YouTube Red for free for 3 months?",
+            "Get started talking with someone on Allo now!",
+            "Would you like to try YouTube TV for free for one month?",
+            "Try G+! Google's state of the art social network, featuring Circles",
+            "Did you know? A background service is probably running",
+            "You may be talking with someone. Try talking with them using Duo instead!",
+            "Did you know? Android has strict internal guidelines on preventing notification abuse.",
+            "Maps: Turn left in 800 feet. Turn left in 300 feet. Turn left.",
+            "Wifi assistant is running. We don't know what that does, either.",
+    };
+
+    private Runnable mIncreaseEngagementRunnable = new Runnable() {
+        @Override
+        public void run() {
+            Random r = new Random();
+            Log.i("Clippy", ENGAGEMENT_PHRASES[r.nextInt(ENGAGEMENT_PHRASES.length)]);
+
+            mHandler.postDelayed(this, MIN_ENGAGEMENT_DELAY_MS + r.nextInt(ENAGEMENT_VARAINCE_MS));
+        }
+    };
 
     public FloatingClippyService() {
     }
@@ -114,6 +146,9 @@ public class FloatingClippyService extends Service {
                 return false;
             }
         });
+
+        mHandler.post(mIncreaseEngagementRunnable);
+
         /*
         //Drag and move chat head using user's touch action.
         chatHeadImage.setOnTouchListener(new View.OnTouchListener() {
