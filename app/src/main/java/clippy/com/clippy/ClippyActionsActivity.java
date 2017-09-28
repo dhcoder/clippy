@@ -67,12 +67,14 @@ public class ClippyActionsActivity extends AppCompatActivity {
     private void startGoogle() {
         Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
         intent.putExtra(SearchManager.QUERY, "hackathon"); // query contains search string
-        startActivity(intent);        startActivity(intent);
+        startService(new Intent(ClippyActionsActivity.this, FloatingClippyService.class));
+        startActivity(intent);
     }
 
     private void startYoutube() {
         Uri dummyIntentUri = Uri.parse("https://www.youtube.com/");
         Intent intent = new Intent(Intent.ACTION_VIEW, dummyIntentUri);
+        startService(new Intent(ClippyActionsActivity.this, FloatingClippyService.class));
         intent.setPackage("com.google.android.youtube");
         startActivity(intent);
     }
@@ -81,6 +83,7 @@ public class ClippyActionsActivity extends AppCompatActivity {
         Uri.Builder builder = CalendarContract.CONTENT_URI.buildUpon();
         builder.appendPath("time");
         ContentUris.appendId(builder, Calendar.getInstance().getTimeInMillis());
+        startService(new Intent(ClippyActionsActivity.this, FloatingClippyService.class));
         Intent intent = new Intent(Intent.ACTION_VIEW)
                 .setData(builder.build());
         startActivity(intent);
@@ -88,6 +91,7 @@ public class ClippyActionsActivity extends AppCompatActivity {
 
     private void startPhone() {
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:"));
+        startService(new Intent(ClippyActionsActivity.this, FloatingClippyService.class));
         startActivity(intent);
     }
 
