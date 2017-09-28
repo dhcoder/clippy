@@ -90,8 +90,7 @@ public class FloatingClippyService extends Service {
         //    }
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
-        final ImageView clippyIcon = mClippyView.findViewById(R.id.clippy_icon);
-
+        
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
