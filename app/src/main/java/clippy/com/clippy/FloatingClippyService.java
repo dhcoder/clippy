@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 
 public class FloatingClippyService extends Service {
@@ -34,16 +35,16 @@ public class FloatingClippyService extends Service {
         final WindowManager.LayoutParams params;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
         }
         else {
             params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_PHONE,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
@@ -68,6 +69,7 @@ public class FloatingClippyService extends Service {
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
         final ImageView clippyIcon = mClippyView.findViewById(R.id.clippy_icon);
+        final Button closeButton = mClippyView.findViewById(R.id.close_btn);
 
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -87,6 +89,14 @@ public class FloatingClippyService extends Service {
                         return true;
                 }
                 return false;
+            }
+        });
+
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopSelf();
+                startService(new Intent(FloatingClippyService.this, FloatingClippyService.class));
             }
         });
         /*
