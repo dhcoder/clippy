@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class ChatHeadService extends Service {
 
@@ -32,8 +33,8 @@ public class ChatHeadService extends Service {
 
         //Add the view to the window.
         final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
@@ -47,6 +48,8 @@ public class ChatHeadService extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mChatHeadView, params);
 
+        hideViews();
+
         ////Set the close button.
         //ImageView closeButton = (ImageView) mChatHeadView.findViewById(R.id.close_btn);
         //closeButton.setOnClickListener(new View.OnClickListener() {
@@ -57,25 +60,27 @@ public class ChatHeadService extends Service {
         //    }
         //});
         final ImageView clippyBackground = (ImageView) mChatHeadView.findViewById(R.id.clippy_background);
-        final ImageView chatHead = (ImageView) mChatHeadView.findViewById(R.id.chat_head_profile_iv);
 
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        chatHead.setX(event.getRawX());
-                        chatHead.setY(event.getRawY());
-                        mWindowManager.updateViewLayout(mChatHeadView, params);
+                        //chatHead.setX(event.getRawX());
+                        //chatHead.setY(event.getRawY());
+                        //clippy.setX(mChatHeadView.getWidth());
+                        //clippy.setVisibility(View.VISIBLE);
+                        startAction("It looks like you want to open an app, would you like some help with that?");
+                        //mWindowManager.updateViewLayout(mChatHeadView, params);
                         return true;
-                    case MotionEvent.ACTION_UP:
-                        Intent intent = new Intent(ChatHeadService.this, ChatActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-
-                        //close the service and remove the chat heads
-                        stopSelf();
-                        return true;
+//                    case MotionEvent.ACTION_UP:
+//                        Intent intent = new Intent(ChatHeadService.this, ChatActivity.class);
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startActivity(intent);
+//
+//                        //close the service and remove the chat heads
+//                        stopSelf();
+//                        return true;
                 }
                 return false;
             }
@@ -133,6 +138,34 @@ public class ChatHeadService extends Service {
             }
         });
         */
+    }
+
+    private void startAction(String question) {
+        final ImageView clippy = mChatHeadView.findViewById(R.id.clippy);
+        float screenWidth = mChatHeadView.getWidth();
+        clippy.setVisibility(View.VISIBLE);
+        clippy.setX(screenWidth - clippy.getWidth());
+
+        final TextView message = mChatHeadView.findViewById(R.id.message);
+        message.setVisibility(View.VISIBLE);
+        message.setText(question);
+        final TextView yes = mChatHeadView.findViewById(R.id.yes);
+        yes.setVisibility(View.VISIBLE);
+        final TextView no = mChatHeadView.findViewById(R.id.no);
+        no.setVisibility(View.VISIBLE);
+//        for (int i = 0; i < clippy.getWidth(); i++) {
+//            clippy.setX(screenWidth - i);
+//
+//        }
+
+        //mWindowManager.updateViewLayout(mChatHeadView, params);
+
+    }
+    private void hideViews() {
+        mChatHeadView.findViewById(R.id.clippy).setVisibility(View.INVISIBLE);
+        mChatHeadView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
+        mChatHeadView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
+        mChatHeadView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
     }
 
     @Override
