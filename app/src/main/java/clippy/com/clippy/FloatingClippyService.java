@@ -255,7 +255,7 @@ public class FloatingClippyService extends Service {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            startAction("Your Clippy instance has been closed! How may I help you?");
+                            startAction(new ActionParams("Your Clippy instance has been closed! How may I help you?"));
                         }
                     });
                 }
