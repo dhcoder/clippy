@@ -35,16 +35,16 @@ public class FloatingClippyService extends Service {
         final WindowManager.LayoutParams params;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
         }
         else {
             params = new WindowManager.LayoutParams(
-                    WindowManager.LayoutParams.WRAP_CONTENT,
-                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
+                    WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.TYPE_PHONE,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                     PixelFormat.TRANSLUCENT);
@@ -58,6 +58,25 @@ public class FloatingClippyService extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mClippyView, params);
 
+        mClippyView.findViewById(R.id.yes).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(FloatingClippyService.this, ClippyActionsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+                //close the service and remove the chat heads
+                stopSelf();
+            }
+        });
+
+        mClippyView.findViewById(R.id.no).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideViews();
+            }
+        });
+
         hideViews();
 
         ////Set the close button.
@@ -70,7 +89,6 @@ public class FloatingClippyService extends Service {
         //    }
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
-        //final ImageView clippyIcon = mClippyView.findViewById(R.id.clippy_icon);
 
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -152,7 +170,7 @@ public class FloatingClippyService extends Service {
     }
 
     private void startAction(String question) {
-        final ImageView clippy = mClippyView.findViewById(R.id.clippy);
+        final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
         float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
         clippy.setX(screenWidth - clippy.getWidth());
@@ -173,7 +191,7 @@ public class FloatingClippyService extends Service {
 
     }
     private void hideViews() {
-        mClippyView.findViewById(R.id.clippy).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.clippy_icon).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
