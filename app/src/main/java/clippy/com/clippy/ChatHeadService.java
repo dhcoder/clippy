@@ -67,7 +67,15 @@ public class ChatHeadService extends Service {
                         chatHead.setX(event.getRawX());
                         chatHead.setY(event.getRawY());
                         mWindowManager.updateViewLayout(mChatHeadView, params);
-                        return false;
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                        Intent intent = new Intent(ChatHeadService.this, ChatActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+
+                        //close the service and remove the chat heads
+                        stopSelf();
+                        return true;
                 }
                 return false;
             }
