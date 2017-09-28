@@ -91,7 +91,6 @@ public class FloatingClippyService extends Service {
         //});
         final ImageView clippyBackground = mClippyView.findViewById(R.id.clippy_background);
         final ImageView clippyIcon = mClippyView.findViewById(R.id.clippy_icon);
-        final Button closeButton = mClippyView.findViewById(R.id.close_btn);
 
         clippyBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -118,7 +117,7 @@ public class FloatingClippyService extends Service {
             }
         });
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
+        mClippyView.findViewById(R.id.close_btn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 stopSelf();
@@ -182,9 +181,11 @@ public class FloatingClippyService extends Service {
 
     private void startAction(String question) {
         final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
+        final Button closeButton = mClippyView.findViewById(R.id.close_btn);
         float screenWidth = mClippyView.getWidth();
         clippy.setVisibility(View.VISIBLE);
         clippy.setX(screenWidth - clippy.getWidth());
+        closeButton.setVisibility(View.VISIBLE);
 
         final TextView message = mClippyView.findViewById(R.id.message);
         message.setVisibility(View.VISIBLE);
@@ -206,6 +207,7 @@ public class FloatingClippyService extends Service {
         mClippyView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
         mClippyView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.close_btn).setVisibility(View.INVISIBLE);
     }
 
     @Override
