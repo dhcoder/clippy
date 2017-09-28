@@ -7,20 +7,66 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <!--Profile image for the chat head.-->
+    <!--
     <ImageView
         android:id="@+id/clippy_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginTop="0dp"
         android:src="@drawable/ic_android_circle"
-        tools:ignore="ContentDescription" />
+        tools:ignore="ContentDescription" />-->
 
+    <!--Transparent background -->
     <ImageView
         android:id="@+id/clippy_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/ic_transparent"
         tools:ignore="ContentDescription" />
+
+    <!--Clippy-->
+    <ImageView
+        android:id="@+id/clippy_icon"
+        android:layout_width="256dp"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_hello_android"
+        android:visibility="invisible"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="18dp"
+        android:background="@android:color/holo_blue_dark"
+        android:text="Placeholder"
+        android:textAppearance="@android:style/TextAppearance.Material.Large" />
+
+    <Button
+        android:id="@+id/yes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/message"
+        android:layout_alignStart="@+id/message"
+        android:layout_below="@+id/message"
+        android:layout_marginTop="19dp"
+        android:text="Yes" />
+
+    <Button
+        android:id="@+id/no"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/yes"
+        android:layout_alignStart="@+id/yes"
+        android:layout_below="@+id/yes"
+        android:layout_marginTop="16dp"
+        android:text="Ask me later" />
 
     <Button
         android:id="@+id/close_btn"

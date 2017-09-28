@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 public class FloatingClippyService extends Service {
 
@@ -58,6 +59,27 @@ public class FloatingClippyService extends Service {
         mWindowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         mWindowManager.addView(mClippyView, params);
 
+        mClippyView.findViewById(R.id.yes).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(FloatingClippyService.this, ClippyActionsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
+                //close the service and remove the chat heads
+                stopSelf();
+            }
+        });
+
+        mClippyView.findViewById(R.id.no).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideViews();
+            }
+        });
+
+        hideViews();
+
         ////Set the close button.
         //ImageView closeButton = (ImageView) mClippyView.findViewById(R.id.close_btn);
         //closeButton.setOnClickListener(new View.OnClickListener() {
@@ -76,17 +98,21 @@ public class FloatingClippyService extends Service {
             public boolean onTouch(View view, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        clippyIcon.setX(event.getRawX());
-                        clippyIcon.setY(event.getRawY());
-                        mWindowManager.updateViewLayout(mClippyView, params);
+                        //chatHead.setX(event.getRawX());
+                        //chatHead.setY(event.getRawY());
+                        //clippy.setX(mChatHeadView.getWidth());
+                        //clippy.setVisibility(View.VISIBLE);
+                        startAction("It looks like you want to open an app, would you like some help with that?");
+                        //mWindowManager.updateViewLayout(mChatHeadView, params);
                         return true;
-                    case MotionEvent.ACTION_UP:
-                        Intent intent = new Intent(FloatingClippyService.this, ClippyActionsActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-
-                        stopSelf();
-                        return true;
+//                    case MotionEvent.ACTION_UP:
+//                        Intent intent = new Intent(ChatHeadService.this, ChatActivity.class);
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                        startActivity(intent);
+//
+//                        //close the service and remove the chat heads
+//                        stopSelf();
+//                        return true;
                 }
                 return false;
             }
@@ -152,6 +178,34 @@ public class FloatingClippyService extends Service {
             }
         });
         */
+    }
+
+    private void startAction(String question) {
+        final ImageView clippy = mClippyView.findViewById(R.id.clippy_icon);
+        float screenWidth = mClippyView.getWidth();
+        clippy.setVisibility(View.VISIBLE);
+        clippy.setX(screenWidth - clippy.getWidth());
+
+        final TextView message = mClippyView.findViewById(R.id.message);
+        message.setVisibility(View.VISIBLE);
+        message.setText(question);
+        final TextView yes = mClippyView.findViewById(R.id.yes);
+        yes.setVisibility(View.VISIBLE);
+        final TextView no = mClippyView.findViewById(R.id.no);
+        no.setVisibility(View.VISIBLE);
+//        for (int i = 0; i < clippy.getWidth(); i++) {
+//            clippy.setX(screenWidth - i);
+//
+//        }
+
+        //mWindowManager.updateViewLayout(mClippyView, params);
+
+    }
+    private void hideViews() {
+        mClippyView.findViewById(R.id.clippy_icon).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.message).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.yes).setVisibility(View.INVISIBLE);
+        mClippyView.findViewById(R.id.no).setVisibility(View.INVISIBLE);
     }
 
     @Override
