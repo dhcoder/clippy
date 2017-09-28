@@ -23,9 +23,6 @@ import java.util.Random;
 public class FloatingClippyService extends Service {
 
     private static final int MIN_ENGAGEMENT_DELAY_MS = 5 * 1000;
-    private static final int ENAGEMENT_VARAINCE_MS = 15 * 1000;
-//    private static final int MIN_ENGAGEMENT_DELAY_MS = 500;
-//    private static final int ENAGEMENT_VARAINCE_MS = 1000;
     private static final int ENAGEMENT_VARAINCE_MS = 5 * 1000;
 
     private static final String IS_CLOSE_INTENT = "CloseIntent";
