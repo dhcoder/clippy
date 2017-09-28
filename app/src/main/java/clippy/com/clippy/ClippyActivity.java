@@ -9,13 +9,13 @@ import android.provider.Settings;
 import android.view.View;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class ClippyActivity extends AppCompatActivity {
     private static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_clippy);
 
         //Check if the application has draw over other apps permission or not?
         //This permission is by default available for API<23. But for API > 23
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
 //        findViewById(R.id.notify_me).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
-                startService(new Intent(MainActivity.this, ChatHeadService.class));
+                startService(new Intent(ClippyActivity.this, FloatingClippyService.class));
                 finish();
 //            }
 //        });
